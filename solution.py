@@ -50,10 +50,11 @@ def receiveOnePing(mySocket, ID, timeout, destAddr):
        # Fill in start
        icmpHeader = recPacket[20:28]
        icmpType, code, mychecksum, packetID, sequence = struct.unpack("bbHHh", icmpHeader)
-
+       #print("the header received:"+ icmpType, code, mychecksum, packetID, str(sequence))
        if type != 8 and packetID == ID:
            bytesInDouble = struct.calcsize("d")
            timeSent = struct.unpack("d", recPacket[28:28 + bytesInDouble])[0]
+           #print("timesent:"+timeSent)
            return timeReceived - timeSent
 
        # Fetch the ICMP header from the IP packet
@@ -113,11 +114,11 @@ def ping(host, timeout=1):
    #print("Pinging " + dest + " using Python:")
    ##print("")
    # Calculate vars values and return them
-   #  vars = [str(round(packet_min, 2)), str(round(packet_avg, 2)), str(round(packet_max, 2)),str(round(stdev(stdev_var), 2))]
+   #vars = [str(round(packet_min, 2)), str(round(packet_avg, 2)), str(round(packet_max, 2)),str(round(stdev(stdev_var), 2))]
    # Send ping requests to a server separated by approximately one second
    for i in range(0,4):
        delay = doOnePing(dest, timeout)
-       print(delay)
+       #print(delay)
        time.sleep(1)  # one second
 
    return vars
