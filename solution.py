@@ -160,8 +160,8 @@ def ping(host, timeout=1):
        time.sleep(1)  # one second
    #print("packet_min",str(round(packet_min,2)))
    #print("packet_max", str(round(packet_max, 2)))
-   vars = [str(round(packet_min, 2)), str(round(packet_max, 2))]
-   #print("vars:", vars)
+   vars = [float(round(packet_min, 2)), float(round(packet_max, 2))]
+   print("vars:", vars)
    return vars
 
 if __name__ == '__main__':
