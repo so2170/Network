@@ -4,10 +4,17 @@ import sys
 import struct
 import time
 import select
+import math
+import statistics
 import binascii
 # Should use stdev
 
 ICMP_ECHO_REQUEST = 8
+timeRTT = []
+packageSent =0
+packageRev = 0
+packet_min =0
+packet_max =0
 
 
 def checksum(string):
@@ -35,18 +42,23 @@ def checksum(string):
 
 
 def receiveOnePing(mySocket, ID, timeout, destAddr):
+   global packageRev,timeRTT,packet_min,packet_max
    timeLeft = timeout
 
    while 1:
        startedSelect = time.time()
+       #print ("Startedtime:",startedSelect)
        whatReady = select.select([mySocket], [], [], timeLeft)
+       #print("time.time:",time.time())
        howLongInSelect = (time.time() - startedSelect)
+       #print ("howlonginseelct:", howLongInSelect)
        if whatReady[0] == []:  # Timeout
            return "Request timed out."
 
        timeReceived = time.time()
+       #print ("timereceived:", timeReceived)
        recPacket, addr = mySocket.recvfrom(1024)
-
+       #print ("recPacket:", recPacket, "Addr:", addr)
        # Fill in start
        icmpHeader = recPacket[20:28]
        icmpType, code, mychecksum, packetID, sequence = struct.unpack("bbHHh", icmpHeader)
@@ -54,8 +66,26 @@ def receiveOnePing(mySocket, ID, timeout, destAddr):
        if type != 8 and packetID == ID:
            bytesInDouble = struct.calcsize("d")
            timeSent = struct.unpack("d", recPacket[28:28 + bytesInDouble])[0]
+           #print("timeRTT:",timeRTT)
+           #print ("timeRTT:", timeRTT)
            #print("timesent:"+timeSent)
-           return timeReceived - timeSent
+           timeRTT.append(timeReceived - timeSent)
+           packageRev += 1
+           diff = timeReceived - timeSent
+           #print("timeRTT lenght:", len(timeRTT))
+           #print("timeRTT min", min(timeRTT))
+           #print("timeRTT max", max(timeRTT))
+           #print("timeRTT avg", float(sum(timeRTT)/len((timeRTT))))
+           #print("timeRTT stdev" %(statistics.stdev(timeRTT,statistics.mean(timeRTT))))
+           #print("timeRTT stdev", float(math.sqrt(sum(timeRTT)/len(timeRTT) - sum(timeRTT/len(timeRTT)**2))) )
+           packet_min = min(timeRTT) if len(timeRTT) > 0 else 0
+           packet_max = max(timeRTT) if len(timeRTT) > 0 else 0
+           #print(
+            #   "maxRTT:", (max(timeRTT) if len(timeRTT) > 0 else 0), "\tminRTT:", (
+             #      min(timeRTT) if len(timeRTT) > 0 else 0), "\naverageRTT:", float(
+              #     sum(timeRTT) / len(timeRTT) if len(timeRTT) > 0 else float("nan")))
+
+           return packet_min,packet_max
 
        # Fetch the ICMP header from the IP packet
 
@@ -112,18 +142,30 @@ def ping(host, timeout=1):
    # timeout=1 means: If one second goes by without a reply from the server,      # the client assumes that either the client's ping or the server's pong is lost
    dest = gethostbyname(host)
    #print("Pinging " + dest + " using Python:")
-   ##print("")
+   #print("")
    # Calculate vars values and return them
+
+   #if len(timeRTT)>0:
+    #   packet_min = min(timeRTT)
+   #else:
+    #   packet_min = 0
+
    #vars = [str(round(packet_min, 2)), str(round(packet_avg, 2)), str(round(packet_max, 2)),str(round(stdev(stdev_var), 2))]
    # Send ping requests to a server separated by approximately one second
    for i in range(0,4):
        delay = doOnePing(dest, timeout)
-       #print(delay)
-       time.sleep(1)  # one second
 
+      # print ("MaxRTT:",(max(timeRTT) if len(timeRTT)>0 else 0))
+
+       time.sleep(1)  # one second
+   #print("packet_min",str(round(packet_min,2)))
+   #print("packet_max", str(round(packet_max, 2)))
+   vars = [str(round(packet_min, 2)), str(round(packet_max, 2))]
+   #print("vars:", vars)
    return vars
 
 if __name__ == '__main__':
    ping("google.co.il")
+    #ping("127.0.0.1")
 
 
