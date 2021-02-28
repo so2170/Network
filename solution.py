@@ -192,7 +192,7 @@ def ping(host, timeout=1):
    under_root = ((sum(timeRTT) - mean) ** 2) * 1.0 / packageRev
    # print ("standard deviation",math.sqrt(under_root))
    stdev_var = math.sqrt(under_root)
-   vars = [float(round(packet_min, 2)),float(round(packet_avg,2)), float(round(packet_max, 2)), float(round(stdev_var,2))]
+   vars = [str(round(packet_min, 2)), str(round(packet_avg,2)), str(round(packet_max, 2)), str(round(stdev_var,2))]
    #print(vars)
    return vars
 
