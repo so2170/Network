@@ -187,7 +187,7 @@ def ping(host, timeout=1):
    #print("timeRTT:", timeRTT, "sum of timeRTT:", sum(timeRTT))
    packet_min = min(timeRTT) if len(timeRTT) > 0 else 0
    packet_max = max(timeRTT) if len(timeRTT) > 0 else 0
-   packet_avg = (sum(timeRTT) / packageRev)
+   packet_avg = (sum(timeRTT) / 4)
    mean = statistics.mean(timeRTT)
    under_root = ((sum(timeRTT) - mean) ** 2) * 1.0 / packageRev
    # print ("standard deviation",math.sqrt(under_root))
