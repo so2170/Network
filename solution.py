@@ -170,7 +170,7 @@ def ping(host, timeout=1):
           str(round(packet_avg* 1000, 2)) + "/" +
           str(round(packet_max* 1000, 2)) + "/" +
           str(packet_stdev) + " ms")
-    vars = [[str(round(packet_min*1000, 2)), str(round(packet_avg*1000, 2)), str(round(packet_max*1000, 2)), str(round(packet_stdev*1000, 2))]]
+    #vars = [[str(round(packet_min*1000, 2)), str(round(packet_avg*1000, 2)), str(round(packet_max*1000, 2)), str(round(packet_stdev*1000, 2))]]
     return vars
 if __name__ == '__main__':
     ping("google.co.il")
