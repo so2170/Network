@@ -65,7 +65,7 @@ def receiveOnePing(mySocket, ID, timeout, destAddr):
             packageRev += 1
             ip_pkt_head = struct.unpack('!BBHHHBBHII', recPacket[:20])
             ttl = ip_pkt_head[5]
-            data_len = len(recPacket)
+            data_len = len(recPacket)-4
             return timeReceived - timeData, ttl, data_len
         else:
             return "ID is not the same!"
@@ -109,7 +109,7 @@ def doOnePing(destAddr, timeout):
         mySocket = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)
     except socket.error as e:
         if e.errno == 1:
-            raise socket.error(msg)
+            raise socket.error("scoket error")
 
     # Fill in end
     myID = os.getpid() & 0xFFFF  # Return the current process i
