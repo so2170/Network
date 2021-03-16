@@ -105,11 +105,12 @@ def sendOnePing(mySocket, destAddr, ID):
 def doOnePing(destAddr, timeout):
     icmp = socket.getprotobyname("icmp")
     # SOCK_RAW is a powerful socket type. For more details see:http://sock-raw.org/papers/sock_raw
-    try:
-        mySocket = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)
-    except socket.error as e:
-        if e.errno == 1:
-            raise socket.error("scoket error")
+    #try:
+    #    mySocket = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)
+    #except socket.error as e:
+    #    if e.errno == 1:
+    #        raise socket.error("socket error")
+    mySocket = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)
 
     # Fill in end
     myID = os.getpid() & 0xFFFF  # Return the current process i
