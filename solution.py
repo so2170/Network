@@ -158,8 +158,8 @@ def ping(host, timeout=1):
     packet_avg = float(sum(timeRTT) / len(timeRTT)
                        if len(timeRTT) > 0 else float("nan"))
     packet_max = (max(timeRTT) if len(timeRTT) > 0 else 0)
-    print("round-trip min/avg/max/stddev = " + str(round(packet_min * 1000, 2)) + "/" + str(
-        round(packet_avg * 1000, 2)) + "/" + str(round(packet_max * 1000, 2)) + "/" + str(packet_stdev) + " ms")
+    print("round-trip min/avg/max/stddev = " + float(round(packet_min * 1000, 2)) + "/" + float(
+        round(packet_avg * 1000, 2)) + "/" + float(round(packet_max * 1000, 2)) + "/" + float(packet_stdev) + " ms")
 
 
 if __name__ == '__main__':
