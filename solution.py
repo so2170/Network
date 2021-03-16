@@ -123,7 +123,7 @@ def ping(host, timeout=1):
     global dest
     # timeout=1 means: If one second goes by without a reply from the server,
     try:
-        dest = socket.gethostbyname(host)
+        dest = gethostbyname(host)
 
     except socket.error as e:
         # raise socket.error(msg)
