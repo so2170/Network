@@ -111,7 +111,7 @@ def doOnePing(destAddr, timeout):
     #except socket.error as e:
     #    if e.errno == 1:
     #        raise socket.error("socket error")
-    mySocket = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)
+    mySocket = socket(AF_INET, SOCK_RAW, icmp)
 
     # Fill in end
     myID = os.getpid() & 0xFFFF  # Return the current process i
@@ -163,8 +163,6 @@ def ping(host, timeout=1):
     packet_avg = float(sum(timeRTT) / len(timeRTT)
                        if len(timeRTT) > 0 else float("nan"))
     packet_max = (max(timeRTT) if len(timeRTT) > 0 else 0)
-    #print("round-trip min/avg/max/stddev = " + str(round(packet_min * 1000, 2)) + "/" + str(
-     #   str(packet_avg * 1000, 2)) + "/" + str(round(packet_max * 1000, 2)) + "/" + str(packet_stdev) + " ms")
     print("round-trip min/avg/max/stddev = " +
           str(round(packet_min * 1000, 2)) + "/" +
           str(round(packet_avg* 1000, 2)) + "/" +
