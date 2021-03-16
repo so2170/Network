@@ -66,6 +66,7 @@ def receiveOnePing(mySocket, ID, timeout, destAddr):
             ip_pkt_head = struct.unpack('!BBHHHBBHII', recPacket[:20])
             ttl = ip_pkt_head[5]
             data_len = len(recPacket)-4
+            #print ("timeRTT", timeRTT)
             return timeReceived - timeData, ttl, data_len
         else:
             return "ID is not the same!"
@@ -145,12 +146,16 @@ def ping(host, timeout=1):
     for i in range(0, 4):
         delay = doOnePing(dest, timeout)
         overall_time = round(timeRTT[i] * 1000, 7)
+        #print ("Overall_time", overall_time)
         timeArr.append(overall_time)
+        #print ("timeArr", timeArr)
         print("Reply from " + dest + ": bytes=" + str(data_len) + " time=" + str(overall_time) + "ms" + " TTL=" + str(
             ttl))
         time.sleep(1)  # one second
     print("")
     packet_stdev = round(statistics.stdev(timeArr), 2)
+    #print("TimeRTT2", timeRTT)
+    #packet_stdev = round(statistics.stdev(timeRTT),2)
     print("---", host, "ping statistics ---")
     print(str(packageSent) + " packets transmitted, " + str(packageRev) + " packets received, " + str(100 * (
             (packageSent - packageRev) / packageSent) if packageRev > 0 else 0) + "% packet loss")
@@ -158,8 +163,13 @@ def ping(host, timeout=1):
     packet_avg = float(sum(timeRTT) / len(timeRTT)
                        if len(timeRTT) > 0 else float("nan"))
     packet_max = (max(timeRTT) if len(timeRTT) > 0 else 0)
-    print("round-trip min/avg/max/stddev = " + str(round(packet_min * 1000, 2)) + "/" + str(
-        str(packet_avg * 1000, 2)) + "/" + str(round(packet_max * 1000, 2)) + "/" + str(packet_stdev) + " ms")
+    #print("round-trip min/avg/max/stddev = " + str(round(packet_min * 1000, 2)) + "/" + str(
+     #   str(packet_avg * 1000, 2)) + "/" + str(round(packet_max * 1000, 2)) + "/" + str(packet_stdev) + " ms")
+    print("round-trip min/avg/max/stddev = " +
+          str(round(packet_min * 1000, 2)) + "/" +
+          str(round(packet_avg* 1000, 2)) + "/" +
+          str(round(packet_max* 1000, 2)) + "/" +
+          str(packet_stdev) + " ms")
     vars = [[str(round(packet_min*1000, 2)), str(round(packet_avg*1000, 2)), str(round(packet_max*1000, 2)), str(round(packet_stdev*1000, 2))]]
     return vars
 if __name__ == '__main__':
