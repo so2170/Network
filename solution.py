@@ -16,6 +16,7 @@ ttl = 0
 data_len = 0
 timeArr = []
 dest = 0
+stdev_vars=[]
 
 
 def checksum(string):
@@ -66,7 +67,8 @@ def receiveOnePing(mySocket, ID, timeout, destAddr):
             ip_pkt_head = struct.unpack('!BBHHHBBHII', recPacket[:20])
             ttl = ip_pkt_head[5]
             data_len = len(recPacket)
-            return timeReceived - timeData, ttl, data_len
+           # print ("time recevied - time data", timeReceived-timeData , " ttl", ttl,"data_len", data_len)
+            return timeReceived - timeData
         else:
             return "ID is not the same!"
 
@@ -120,7 +122,7 @@ def doOnePing(destAddr, timeout):
 
 
 def ping(host, timeout=1):
-    global dest
+    global dest, stdev_vars
     # timeout=1 means: If one second goes by without a reply from the server,
     try:
         dest = gethostbyname(host)
@@ -143,13 +145,15 @@ def ping(host, timeout=1):
     # Send ping requests to a server separated by approximately one second
     for i in range(0, 4):
         delay = doOnePing(dest, timeout)
-        overall_time = round(timeRTT[i] * 1000, 7)
-        timeArr.append(overall_time)
-        print("Reply from " + dest + ": bytes=" + str(data_len) + " time=" + str(overall_time) + "ms" + " TTL=" + str(
+        stdev_vars.append(delay *1000)
+        #print ("delay",delay)
+        #overall_time = round(timeRTT[i] * 1000, 7)
+        #timeArr.append(overall_time)
+        print("Reply from " + dest + ": bytes=" + str(data_len) + " time=" + str(round(delay * 1000, 2)) + "ms" + " TTL=" + str(
             ttl))
         time.sleep(1)  # one second
     print("")
-    packet_stdev = round(statistics.stdev(timeArr), 2)
+    packet_stdev = round(statistics.stdev(stdev_vars), 2)
     print("---", host, "ping statistics ---")
     print(str(packageSent) + " packets transmitted, " + str(packageRev) + " packets received, " + str(100 * (
             (packageSent - packageRev) / packageSent) if packageRev > 0 else 0) + "% packet loss")
