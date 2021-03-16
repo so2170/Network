@@ -103,10 +103,10 @@ def sendOnePing(mySocket, destAddr, ID):
 
 
 def doOnePing(destAddr, timeout):
-    icmp = socket.getprotobyname("icmp")
+    icmp = getprotobyname("icmp")
     # SOCK_RAW is a powerful socket type. For more details see:http://sock-raw.org/papers/sock_raw
     try:
-        mySocket = socket(AF_INET, SOCK_RAW, icmp)
+        mySocket = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)
     except socket.error as e:
         if e.errno == 1:
             raise socket.error("error")
