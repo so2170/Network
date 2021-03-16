@@ -5,17 +5,18 @@ import struct
 import time
 import select
 import binascii
-import socket
 import statistics
+# Should use stdev
 
 ICMP_ECHO_REQUEST = 8
 timeRTT = []
-packageSent = 0
-packageRev = 0
-ttl = 0
-data_len = 0
-timeArr = []
-dest = 0
+roundTrip_cnt =0
+roundTrip_sum =0
+roundTrip_min = 0
+roundTrip_max =0
+packageSent =0
+timeARR= []
+
 
 
 def checksum(string):
@@ -41,35 +42,45 @@ def checksum(string):
     return answer
 
 
+
 def receiveOnePing(mySocket, ID, timeout, destAddr):
-    global packageRev, timeRTT, ttl, ip_pkt_head, data_len
+    global roundTrip_min, roundTrip_max, roundTrip_sum, roundTrip_cnt, length, ttl
     timeLeft = timeout
+
     while 1:
         startedSelect = time.time()
         whatReady = select.select([mySocket], [], [], timeLeft)
         howLongInSelect = (time.time() - startedSelect)
         if whatReady[0] == []:  # Timeout
             return "Request timed out."
+
         timeReceived = time.time()
         recPacket, addr = mySocket.recvfrom(1024)
 
         # Fill in start
-        # Fetch the ICMP header from the IP packet
-        icmpHeader = recPacket[20:28]
-        requestType, code, revChecksum, revId, revSequence = struct.unpack(
-            'bbHHh', icmpHeader)
-        if ID == revId:
+        type, code, checksum, id, seq = struct.unpack('bbHHh', recPacket[20:28])
+        if ID == id:
             bytesInDouble = struct.calcsize('d')
-            timeData = struct.unpack('d', recPacket[28:28 + bytesInDouble])[0]
-            timeRTT.append(timeReceived - timeData)
-            packageRev += 1
-            ip_pkt_head = struct.unpack('!BBHHHBBHII', recPacket[:20])
+            trans_time = struct.unpack('d', recPacket[28:28 + bytesInDouble])[0]
+            #trans_time = struct.unpack('d', recPacket[28:])
+            roundTrip = (timeReceived - trans_time) * 1000
+            timeRTT.append(timeReceived - trans_time)
+            #print ("time RTT", timeRTT)
+            roundTrip_cnt += 1
+            roundTrip_sum += roundTrip
+            roundTrip_min = min(roundTrip_min, roundTrip)
+            roundTrip_max = max(roundTrip_max, roundTrip)
+            #timeRTT.append(timeReceived - timeData)
+            ip_pkt_head = struct.unpack('!BBHHHBBH4s4s', recPacket[:20])
             ttl = ip_pkt_head[5]
-            data_len = len(recPacket)-4
-            #print ("timeRTT", timeRTT)
-            return timeReceived - timeData, ttl, data_len
+            #saddr = socket.inet_ntoa(ip_pkt_head[8])
+            length = len(recPacket) - 8
+            return length, seq, ttl, roundTrip
         else:
-            return "ID is not the same!"
+            return "ID is not the same"
+
+
+        # Fetch the ICMP header from the IP packet
 
         # Fill in end
         timeLeft = timeLeft - howLongInSelect
@@ -78,42 +89,43 @@ def receiveOnePing(mySocket, ID, timeout, destAddr):
 
 
 def sendOnePing(mySocket, destAddr, ID):
-    global packageSent
     # Header is type (8), code (8), checksum (16), id (16), sequence (16)
+    global packageSent
     myChecksum = 0
-    # Make a dummy header with a 0 checksum.
+    # Make a dummy header with a 0 checksum
     # struct -- Interpret strings as packed binary data
     header = struct.pack("bbHHh", ICMP_ECHO_REQUEST, 0, myChecksum, ID, 1)
     data = struct.pack("d", time.time())
     # Calculate the checksum on the data and the dummy header.
     myChecksum = checksum(header + data)
+
     # Get the right checksum, and put in the header
+
     if sys.platform == 'darwin':
-        myChecksum = socket.htons(myChecksum) & 0xffff
-        # Convert 16-bit integers from host to network byte order.
+        # Convert 16-bit integers from host to network  byte order
+        myChecksum = htons(myChecksum) & 0xffff
     else:
-        myChecksum = socket.htons(myChecksum)
+        myChecksum = htons(myChecksum)
+
+
     header = struct.pack("bbHHh", ICMP_ECHO_REQUEST, 0, myChecksum, ID, 1)
     packet = header + data
+
     mySocket.sendto(packet, (destAddr, 1))
     packageSent += 1
-
     # AF_INET address must be tuple, not str
-    # Both LISTS and TUPLES consist of a number of objects
-    # which can be referenced by their position number within the object
 
+
+    # Both LISTS and TUPLES consist of a number of objects
+    # which can be referenced by their position number within the object.
 
 def doOnePing(destAddr, timeout):
-    icmp = socket.getprotobyname("icmp")
-    # SOCK_RAW is a powerful socket type. For more details see:http://sock-raw.org/papers/sock_raw
-    #try:
-    #    mySocket = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)
-    #except socket.error as e:
-    #    if e.errno == 1:
-    #        raise socket.error("socket error")
+    icmp = getprotobyname("icmp")
+
+
+    # SOCK_RAW is a powerful socket type. For more details:   http://sockraw.org/papers/sock_raw
     mySocket = socket(AF_INET, SOCK_RAW, icmp)
 
-    # Fill in end
     myID = os.getpid() & 0xFFFF  # Return the current process i
     sendOnePing(mySocket, destAddr, myID)
     delay = receiveOnePing(mySocket, myID, timeout, destAddr)
@@ -123,10 +135,9 @@ def doOnePing(destAddr, timeout):
 
 def ping(host, timeout=1):
     global dest
-    # timeout=1 means: If one second goes by without a reply from the server,
+    # timeout=1 means: If one second goes by without a reply from the server,  	# the client assumes that either the client's ping or the server's pong is lost
     try:
-        dest = socket.gethostbyname(host)
-
+        dest = gethostbyname(host)
     except socket.error as e:
         # raise socket.error(msg)
         print("Pinging " + host + " using Python:")
@@ -135,41 +146,42 @@ def ping(host, timeout=1):
             print("Request timed out.")
         print("")
         print("--- no.no.e ping statistics ---")
-        print(packageSent, " packets transmitted, 0 packets received, 100% packet loss")
+        print(roundTrip_sum, " packets transmitted, 0 packets received, 100% packet loss")
         print("round-trip min/avg/max/stddev = 0/0.0/0.0/0.0 ms")
         exit()
     print("Pinging " + dest + " using Python:")
     print("")
-    # vars = [str(round(packet_min, 2)), str(round(packet_avg, 2)), str(
-    # round(packet_max, 2)), str(round(stdev(stdev_var), 2))]
+
+
+    # Calculate vars values and return them
+    #  vars = [str(round(packet_min, 2)), str(round(packet_avg, 2)), str(round(packet_max, 2)),str(round(stdev(stdev_var), 2))]
     # Send ping requests to a server separated by approximately one second
-    for i in range(0, 4):
+    for i in range(0,4):
         delay = doOnePing(dest, timeout)
-        overall_time = round(timeRTT[i] * 1000, 7)
-        #print ("Overall_time", overall_time)
-        timeArr.append(overall_time)
-        #print ("timeArr", timeArr)
-        print("Reply from " + dest + ": bytes=" + str(data_len) + " time=" + str(overall_time) + "ms" + " TTL=" + str(
-            ttl))
+        overall_time = round(timeRTT[i]*1000, 7)
+        timeARR.append(overall_time)
+        #print ("time RTT", timeRTT)
+        print("Reply from " + dest + ": bytes=" + str(length) + " time=" + str(overall_time) + "ms" + " TTL=" + str(ttl))
         time.sleep(1)  # one second
     print("")
-    packet_stdev = round(statistics.stdev(timeArr), 2)
-    #print("TimeRTT2", timeRTT)
-    #packet_stdev = round(statistics.stdev(timeRTT),2)
+    packet_stdev = round(statistics.stdev(timeARR), 2)
     print("---", host, "ping statistics ---")
-    print(str(packageSent) + " packets transmitted, " + str(packageRev) + " packets received, " + str(100 * (
-            (packageSent - packageRev) / packageSent) if packageRev > 0 else 0) + "% packet loss")
+    print(str(packageSent) + " packets transmitted, " + str(roundTrip_cnt) + " packets received, " + str(100 * (
+            (packageSent - roundTrip_cnt) / packageSent) if roundTrip_sum > 0 else 0) + "% packet loss")
     packet_min = (min(timeRTT) if len(timeRTT) > 0 else 0)
     packet_avg = float(sum(timeRTT) / len(timeRTT)
                        if len(timeRTT) > 0 else float("nan"))
+    #print ("sum(timeRTT)", sum(timeRTT), "lentime RTT", len(timeRTT))
     packet_max = (max(timeRTT) if len(timeRTT) > 0 else 0)
-    print("round-trip min/avg/max/stddev = " +
-          str(round(packet_min * 1000, 2)) + "/" +
-          str(round(packet_avg* 1000, 2)) + "/" +
-          str(round(packet_max* 1000, 2)) + "/" +
-          str(packet_stdev) + " ms")
-    #vars = [[str(round(packet_min*1000, 2)), str(round(packet_avg*1000, 2)), str(round(packet_max*1000, 2)), str(round(packet_stdev*1000, 2))]]
+    print("round-trip min/avg/max/stddev = " + str(round(packet_min * 1000, 2)) + "/" + str(
+        round(packet_avg, 2)) + "/" + str(round(packet_max * 1000, 2)) + "/" + str(packet_stdev) + " ms")
+    #vars = [str(round(packet_min, 2)), str(round(packet_avg, 2)), str(round(packet_max, 2)),str(round(packet_stdev))]
+    #print ("vars",vars)
+
+        #print(delay)
+        #time.sleep(1)  # one second
+
     return vars
+
 if __name__ == '__main__':
     ping("google.co.il")
-    #ping("192.0.0.1")
