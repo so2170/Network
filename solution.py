@@ -211,7 +211,7 @@ def get_route(hostname):
                     #print("timesent", str(round((timeReceived - t) * 100)))
 
                     #print("type 11",(timeReceived-t))
-                    e=(str(ttl) + "," + str(round((timeReceived - t) * 10)) + "ms" + ","+ str(addr[0]) + "," + h)
+                    e=(str(ttl) + "," + str(round((timeReceived - t) * 1000)) + "ms" + ","+ str(addr[0]) + "," + h)
                     tracelist1.append(e.split(","))
                     #tracelist2.append(tracelist1)
                     #print("tracelist1",tracelist1)
@@ -226,7 +226,7 @@ def get_route(hostname):
                     #print("timereceived", str(round((timeReceived - t) * 100)))
                     #print("timesent", str(round((timeReceived - t) * 100)))
                     #print("type 3", (timeReceived - timeSent))
-                    d=(str(ttl) + "," + str(round((timeReceived - t) * 10)) +"ms"+ "," + str(addr[0]) + "," + h)
+                    d=(str(ttl) + "," + str(round((timeReceived - t) * 1000)) +"ms"+ "," + str(addr[0]) + "," + h)
                     tracelist1.append(d.split(","))
                     #tracelist2.append(tracelist1)
                     #print("tracelist1", tracelist1)
@@ -240,13 +240,14 @@ def get_route(hostname):
                     #print("timereceived", str(round((timeReceived - timeSent) * 10)))
                     #print("timesent", str(round((timeReceived - timeSent) * 10)))
                     #print("type 0", (timeReceived - timeSent))
-                    e=str(ttl) + "," + str(round((timeReceived - timeSent) * 10)) +"ms" + "," + str(addr[0]) + "," + h
+                    e=str(ttl) + "," + str(round((timeReceived - timeSent) * 1000)) +"ms" + "," + str(addr[0]) + "," + h
                     tracelist1.append(e.split(","))
                     tracelist2.append(tracelist1)
                     #print(destAddr)
                     #print("tracelist2", tracelist2)
                     #print("tracelist2", tracelist2)
                     #print(destAddr)
+                    print(destAddr)
                     print(tracelist2)
                     return tracelist2
                     #You should add your responses to your lists here and return your list if your destination IP is met
