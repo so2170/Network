@@ -198,7 +198,7 @@ def get_route(hostname):
                     #print(e)
                     tracelist2.append(tracelist1)
                     #print(destAddr)
-                    print(tracelist2)
+                    #print(tracelist2)
                     return tracelist2
                     #You should add your responses to your lists here and return your list if your destination IP is met
                     #Fill in end
