@@ -127,18 +127,29 @@ def get_route(hostname):
                     #Fill in end
 
                 recvPacket, addr = mySocket.recvfrom(1024)
-                curraddr = addr[0]
-                curr_name = str(socket.getfqdn(curraddr))
+                #curraddr = addr[0]
+                try:  # try to fetch the hostname
+                    # Fill in start
+                    h = gethostbyaddr(addr[0])[0]
+                    # my_print(source_hostname[0])
+                    # Fill in end
+                except herror:  # if the host does not provide a hostname
+                    # Fill in start
+                    h = "hostname not returnable"
+                    # Fill in end
 
-                try:
-                    if curr_name == addr[0]:
-                        h = "hostname not returnable"
+                #curr_name = str(socket.getfqdn(curraddr))
+                #h = gethostbyaddr(addr[0])[0]
+
+                #try:
+                 #   if curr_name == addr[0]:
+                  #      h = "hostname not returnable"
                         # print (h)
-                    else:
-                        curr_name != addr[0]
-                        h = curr_name
-                except socket.error:
-                    pass
+                   # else:
+                    #    curr_name != addr[0]
+                     #   h = curr_name
+                #except socket.error:
+                 #   pass
 
                 timeReceived = time.time()
                 timeLeft = timeLeft - howLongInSelect
