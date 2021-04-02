@@ -135,6 +135,8 @@ def get_route(hostname):
                     b=(str(ttl) + "," + "*" + "," + "Request timed out")
 
                     tracelist1.append(b.split(","))
+
+                    print(b)
                     #Fill in start
                     #tracelist1.append(destAddr)
                     #You should add the list above to your all traces list
@@ -169,6 +171,7 @@ def get_route(hostname):
                     flag += 1
                     c=(str(ttl) + "," + "*" + "," + "Request timed out")
                     tracelist1.append(c.split(","))
+                    print(c)
                     #tracelist1.append(str(ttl) +","+ str(abs(round((timeReceived-t) * 1000, 2)))+"  *   Request timed out.")
                     #Fill in startstr
                     #tracelist2.append(tracelist1)
@@ -213,6 +216,7 @@ def get_route(hostname):
                     #print("type 11",(timeReceived-t))
                     e=(str(ttl) + "," + str(round((timeReceived - t) * 1000)) + "ms" + ","+ str(addr[0]) + "," + h)
                     tracelist1.append(e.split(","))
+                    print(e)
                     #tracelist2.append(tracelist1)
                     #print("tracelist1",tracelist1)
                     #print("tracelist2", tracelist2)
@@ -228,6 +232,7 @@ def get_route(hostname):
                     #print("type 3", (timeReceived - timeSent))
                     d=(str(ttl) + "," + str(round((timeReceived - t) * 1000)) +"ms"+ "," + str(addr[0]) + "," + h)
                     tracelist1.append(d.split(","))
+                    print(d)
                     #tracelist2.append(tracelist1)
                     #print("tracelist1", tracelist1)
                     #print("tracelist2", tracelist2)
@@ -240,14 +245,15 @@ def get_route(hostname):
                     #print("timereceived", str(round((timeReceived - timeSent) * 10)))
                     #print("timesent", str(round((timeReceived - timeSent) * 10)))
                     #print("type 0", (timeReceived - timeSent))
-                    e=str(ttl) + "," + str(round((timeReceived - timeSent) * 1000)) +"ms" + "," + str(addr[0]) + "," + h
+                    e=str(ttl) + "," + str(round((timeReceived - timeSent) * 1000)) +"ms" + "," + str(addr[0]) + "," + hostname
                     tracelist1.append(e.split(","))
+                    print(e)
                     tracelist2.append(tracelist1)
                     #print(destAddr)
                     #print("tracelist2", tracelist2)
                     #print("tracelist2", tracelist2)
                     #print(destAddr)
-                    print(destAddr)
+                   # print(destAddr)
                     print(tracelist2)
                     return tracelist2
                     #You should add your responses to your lists here and return your list if your destination IP is met
