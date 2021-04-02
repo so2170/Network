@@ -198,8 +198,8 @@ def get_route(hostname):
                     #print(e)
                     tracelist2.append(tracelist1)
                     #print(destAddr)
-                    print(tracelist2)
-                    return tracelist2
+                    print(tracelist1)
+                    return tracelist1
                     #You should add your responses to your lists here and return your list if your destination IP is met
                     #Fill in end
                 else:
@@ -213,4 +213,4 @@ def get_route(hostname):
                 mySocket.close()
 
 if __name__ == '__main__':
-    get_route("www.google.com")
+    get_route("www.bing.com")
